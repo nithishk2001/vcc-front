@@ -1,40 +1,46 @@
-import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Create() {
     const [form, setForm] = useState({
         name: "",
         position: "",
         level: ""
-    })
-    const navigate = useNavigate()
+    });
+    const navigate = useNavigate();
 
     function updateForm(value) {
         setForm((prev) => {
-            return { ...prev, ...value }
-        })
+            return { ...prev, ...value };
+        });
     }
 
     async function onSubmit(e) {
-        e.preventDefault()
+        e.preventDefault();
 
-        const newPerson = { ...form }
-        const response = await fetch(`${process.env.REACT_APP_YOUR_HOSTNAME}/record/add`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(newPerson)
-        })
+        const newPerson = { ...form };
 
-        if (!response.ok) {
-            const message = `An error occurred: ${response.statusText}`
-            window.alert(message)
-            return
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/record/add`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newPerson)
+            });
+
+            if (!response.ok) {
+                const message = `An error occurred: ${response.statusText}`;
+                window.alert(message);
+                return;
+            }
+
+            setForm({ name: "", position: "", level: "" });
+            navigate("/");
+        } catch (error) {
+            console.error("Error while creating the person:", error);
+            window.alert("An error occurred: " + error.message);
         }
-
-        setForm({ name: "", position: "", level: "" })
-        navigate("/")
     }
 
     return (
@@ -108,5 +114,5 @@ export default function Create() {
                 </div>
             </form>
         </div>
-    )
+    );
 }
